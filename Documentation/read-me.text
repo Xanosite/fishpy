@@ -1,0 +1,15 @@
+Welcome to FishPy!
+
+The Fishbowl inventory management system has a wide variety of API options.
+
+This module provides one line functions to interact with the API for use in
+  other applications.
+
+The goal is to crate a simple interface that can provide functionality for every
+  option available.
+
+This module was NOT made by a professional, use at your own risk as many of the
+  functions can have catastrophic affects.
+
+If you have come across this and thought something should be done differently,
+  I encourage you to submit a pull request. Odds are you're right.
