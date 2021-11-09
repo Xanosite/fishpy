@@ -26,3 +26,8 @@ def login(username, password):
 def query(key, query):
     files = get_data_files()
     return api.send_query(key, query, files[0], files[1], files[2])
+
+# logs out key, returns true on succesful logout, other codes return false
+def logout(key):
+    files = get_data_files()
+    return api.logout(key, files[0], files[1], files[2])

@@ -26,8 +26,8 @@ def make_login_msg  (username, password, primary_directory,
     try:
         app_data_dict = json.loads(open(app_data_name, "r").read())
     except (FileNotFoundError, OSError):
-        # report error to user and begin termination of program sequence
-        return dat_missing_incorrect(primary_directory, app_data_name)
+        # terminate, great error handeling i know
+        dat_missing_incorrect(primary_directory, app_data_name)
     # create dictionary for login request
     try:
         login_dict =    {
@@ -49,11 +49,24 @@ def make_login_msg  (username, password, primary_directory,
 def login(primary_directory, app_data_name, status_codes_name, username, password):
     # get the login_message
     login_message = make_login_msg(username, password, primary_directory, app_data_name)
-    login_response = streams.fishbowl_connection_communicate(login_message, primary_directory, app_data_name)
+    server_response = streams.fishbowl_connection_communicate(login_message, primary_directory, app_data_name)
     #parse reply
-    server_reply = parse_reply(login_response, primary_directory, status_codes_name)
-    # check if login succesfull or bad credentials
-    return server_reply
+    return parse_reply(server_response, primary_directory, status_codes_name)
+
+
+# logs user out (voids key)
+def logout(key, primary_directory, app_data_name, status_codes_name):
+    # make very simple logout request packet
+    logout_dict = {"LogoutRq":""}
+    logout_message = wrap_message(key, logout_dict)
+    # get server response
+    server_response = streams.fishbowl_connection_communicate(logout_message, primary_directory, app_data_name)
+    server_response_parsed = parse_reply(server_response, primary_directory, status_codes_name)
+    # return success status
+    if server_response_parsed["status_code"] == 1164:
+        return True
+    return "False"
+
 
 # sends basic queries to fishbowl and returns the result
 def send_query(key, query, primary_directory, app_data_name, status_codes_name):
@@ -81,7 +94,7 @@ def parse_reply(server_response, primary_directory, status_codes_name):
     status_response = ""
     codes_dict = {}
     dict_response = json.loads(server_response)
-    reply_data= dict_response["FbiJson"]["FbiMsgsRs"]
+    reply_data = dict_response["FbiJson"]["FbiMsgsRs"]
     key = dict_response["FbiJson"]["Ticket"]["Key"]
     status_code = reply_data["statusCode"]
     # get code dictionary
