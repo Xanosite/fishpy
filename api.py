@@ -57,14 +57,19 @@ def login(primary_directory, app_data_name, status_codes_name, username, passwor
 
 # sends basic queries to fishbowl and returns the result
 def send_query(key, query, primary_directory, app_data_name, status_codes_name):
+    # convert query to dict and turn into communication packet
     message_dict = {"ExecuteQueryRq":{"Query":query}}
     data_packet = wrap_message(key, message_dict)
+    # send query and capture response
     comm_result = streams.fishbowl_connection_communicate(data_packet, primary_directory, app_data_name)
     parsed_reply = parse_reply(comm_result, primary_directory, status_codes_name)
+    # extract results from query, server returns list of strings
     if parsed_reply['status_code'] == 1000:
         query_result = parsed_reply["reply_data"]["ExecuteQueryRs"]["Rows"]["Row"]
         new_list = []
-        # fixing weird formatting
+        # seperate strings into list
+        # fishbowl does not purge commas, and returns a CSV which may contain commas in data
+        # this may cause issues if a result contains ",," or commas next to quotes
         for row in query_result:
             new_list.append(row.replace(",,", "||").replace("\",", "\"|").replace(",\"", ("|\"")).split("|"))
         return new_list
