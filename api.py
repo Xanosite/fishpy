@@ -1,6 +1,6 @@
 '''
 Function wrapper file
-Designed to contain comonly used functions
+Designed to contain commonly used functions
 '''
 import os
 import sys
