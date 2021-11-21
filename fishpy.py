@@ -164,14 +164,19 @@ class connection:
         # Fromat query to be sent to fishbowl
         query_dict = {"ExecuteQueryRq":{"Query":query}}
         message_dict = self.__fishbowl_msgs_rs(query_dict)
+        # Try to parse JSON, terminate on failure
         try:
             server_response = json.loads(self.__fishbowl_connection_communicate(message_dict))
         except json.JSONDecodeError as e:
             print("Exception: Server response was not in JSON format.")
             print(e)
             sys.exit(1)
+        # Get the status code and its description
         status_code = server_response["FbiJson"]["FbiMsgsRs"]["statusCode"]
         status = (status_code, self.__fishbowl_status_code(status_code))
+        # Get the query response, or the error message
         if status_code == 1000:
             query_response = server_response["FbiJson"]["FbiMsgsRs"]["ExecuteQueryRs"]["Rows"]["Row"]
+        else:
+            query_response = server_response["FbiJson"]["FbiMsgsRs"]["ExecuteQueryRs"]["statusMessage"]
         return (status, query_response)
